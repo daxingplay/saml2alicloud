@@ -3,12 +3,12 @@ This code supports to authenticate user from cli with saml to Akamai SAML IDP wi
 
 # Requirements
 * Need Go 1.12
-* Need saml2aws code from github link https://github.com/Versent/saml2aws
+* Need saml2aws code from github link https://github.com/daxingplay/saml2alicloud
 
 # Building the Code
 * Install Go 1.12
 * Set GOPATH
-* clone code from github link to $GOPATH/src/github.com/versent/saml2aws
+* clone code from github link to $GOPATH/src/github.com/daxingplay/saml2alicloud
 * copy akamai.go to versent/saml2aws/pkg/providers/akamai/
 * Merge code from saml2aws.go to support Akamai config.
 * Ensure $GOPATH/bin in your $PATH

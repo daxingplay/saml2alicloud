@@ -15,10 +15,10 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/creds"
-	"github.com/versent/saml2aws/v2/pkg/prompter"
-	"github.com/versent/saml2aws/v2/pkg/provider"
+	"github.com/daxingplay/saml2alicloud/v2/pkg/cfg"
+	"github.com/daxingplay/saml2alicloud/v2/pkg/creds"
+	"github.com/daxingplay/saml2alicloud/v2/pkg/prompter"
+	"github.com/daxingplay/saml2alicloud/v2/pkg/provider"
 )
 
 var logger = logrus.WithField("provider", "googleapps")

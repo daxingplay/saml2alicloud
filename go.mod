@@ -1,4 +1,4 @@
-module github.com/versent/saml2aws/v2
+module github.com/daxingplay/saml2alicloud/v2
 
 go 1.13
 
