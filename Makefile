@@ -1,4 +1,4 @@
-NAME=saml2aws
+NAME=saml2alicloud
 ARCH=$(shell uname -m)
 VERSION=2.27.1
 ITERATION := 1
