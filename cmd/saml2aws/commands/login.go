@@ -5,17 +5,18 @@ import (
 	"log"
 	"os"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-	"github.com/daxingplay/saml2alicloud/v2"
+	// "github.com/aws/aws-sdk-go/aws"
+	// "github.com/aws/aws-sdk-go/aws/session"
+	// "github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
+	saml2aws "github.com/daxingplay/saml2alicloud/v2"
 	"github.com/daxingplay/saml2alicloud/v2/helper/credentials"
-	"github.com/daxingplay/saml2alicloud/v2/pkg/awsconfig"
+	"github.com/daxingplay/saml2alicloud/v2/pkg/alicloudconfig"
 	"github.com/daxingplay/saml2alicloud/v2/pkg/cfg"
 	"github.com/daxingplay/saml2alicloud/v2/pkg/creds"
 	"github.com/daxingplay/saml2alicloud/v2/pkg/flags"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 // Login login to ADFS
@@ -28,7 +29,7 @@ func Login(loginFlags *flags.LoginExecFlags) error {
 		return errors.Wrap(err, "error building login details")
 	}
 
-	sharedCreds := awsconfig.NewSharedCredentials(account.Profile)
+	sharedCreds := alicloudconfig.NewSharedCredentials(account.Profile)
 
 	logger.Debug("check if Creds Exist")
 
@@ -187,12 +188,12 @@ func selectAwsRole(samlAssertion string, account *cfg.IDPAccount) (*saml2aws.AWS
 
 	roles, err := saml2aws.ExtractAwsRoles(data)
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing aws roles")
+		return nil, errors.Wrap(err, "error parsing alicloud roles")
 	}
 
 	if len(roles) == 0 {
 		log.Println("No roles to assume")
-		log.Println("Please check you are permitted to assume roles for the AWS service")
+		log.Println("Please check you are permitted to assume roles for the AlibabaCloud service")
 		os.Exit(1)
 	}
 
@@ -234,7 +235,7 @@ func resolveRole(awsRoles []*saml2aws.AWSRole, samlAssertion string, account *cf
 		return nil, errors.New("no accounts available")
 	}
 
-	saml2aws.AssignPrincipals(awsRoles, awsAccounts)
+	// saml2aws.AssignPrincipals(awsRoles, awsAccounts)
 
 	if account.RoleARN != "" {
 		return saml2aws.LocateRole(awsRoles, account.RoleARN)
@@ -251,43 +252,34 @@ func resolveRole(awsRoles []*saml2aws.AWSRole, samlAssertion string, account *cf
 	return role, nil
 }
 
-func loginToStsUsingRole(account *cfg.IDPAccount, role *saml2aws.AWSRole, samlAssertion string) (*awsconfig.AWSCredentials, error) {
+func loginToStsUsingRole(account *cfg.IDPAccount, role *saml2aws.AWSRole, samlAssertion string) (*alicloudconfig.AliCloudCredentials, error) {
 
-	sess, err := session.NewSession(&aws.Config{
-		Region: &account.Region,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create session")
-	}
+	client, err := sts.NewClientWithAccessKey("cn-hangzhou", "a", "b")
 
-	svc := sts.New(sess)
-
-	params := &sts.AssumeRoleWithSAMLInput{
-		PrincipalArn:    aws.String(role.PrincipalARN), // Required
-		RoleArn:         aws.String(role.RoleARN),      // Required
-		SAMLAssertion:   aws.String(samlAssertion),     // Required
-		DurationSeconds: aws.Int64(int64(account.SessionDuration)),
-	}
+	request := sts.CreateAssumeRoleWithSAMLRequest()
+	request.Scheme = "https"
+	request.RoleArn = role.RoleARN
+	request.SAMLAssertion = samlAssertion
+	request.SAMLProviderArn = role.PrincipalARN
 
 	log.Println("Requesting AWS credentials using SAML assertion")
 
-	resp, err := svc.AssumeRoleWithSAML(params)
+	response, err := client.AssumeRoleWithSAML(request)
 	if err != nil {
 		return nil, errors.Wrap(err, "error retrieving STS credentials using SAML")
 	}
 
-	return &awsconfig.AWSCredentials{
-		AWSAccessKey:     aws.StringValue(resp.Credentials.AccessKeyId),
-		AWSSecretKey:     aws.StringValue(resp.Credentials.SecretAccessKey),
-		AWSSessionToken:  aws.StringValue(resp.Credentials.SessionToken),
-		AWSSecurityToken: aws.StringValue(resp.Credentials.SessionToken),
-		PrincipalARN:     aws.StringValue(resp.AssumedRoleUser.Arn),
-		Expires:          resp.Credentials.Expiration.Local(),
-		Region:           account.Region,
+	return &alicloudconfig.AliCloudCredentials{
+		AliCloudAccessKey:     response.Credentials.AccessKeyId,
+		AliCloudSecretKey:     response.Credentials.AccessKeySecret,
+		AliCloudSecurityToken: response.Credentials.SecurityToken,
+		PrincipalARN:          response.AssumedRoleUser.Arn,
+		// Expires:          response.Credentials.Expiration,
+		Region: account.Region,
 	}, nil
 }
 
-func saveCredentials(awsCreds *awsconfig.AWSCredentials, sharedCreds *awsconfig.CredentialsProvider) error {
+func saveCredentials(awsCreds *alicloudconfig.AliCloudCredentials, sharedCreds *alicloudconfig.CredentialsProvider) error {
 	err := sharedCreds.Save(awsCreds)
 	if err != nil {
 		return errors.Wrap(err, "error saving credentials")
@@ -295,9 +287,9 @@ func saveCredentials(awsCreds *awsconfig.AWSCredentials, sharedCreds *awsconfig.
 
 	log.Println("Logged in as:", awsCreds.PrincipalARN)
 	log.Println("")
-	log.Println("Your new access key pair has been stored in the AWS configuration")
+	log.Println("Your new access key pair has been stored in the AlibabaCloud CLI configuration")
 	log.Printf("Note that it will expire at %v", awsCreds.Expires)
-	log.Println("To use this credential, call the AWS CLI with the --profile option (e.g. aws --profile", sharedCreds.Profile, "ec2 describe-instances).")
+	log.Println("To use this credential, call the AlibabaCloud CLI with the --profile option (e.g. aliyun --profile", sharedCreds.Profile, "sts GetCallerIdentity --region=cn-hangzhou).")
 
 	return nil
 }

@@ -10,6 +10,8 @@ require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc // indirect
 	github.com/alecthomas/units v0.0.0-20190910110746-680d30ca3117 // indirect
+	github.com/aliyun/alibaba-cloud-sdk-go v1.61.681
+	github.com/aliyun/aliyun-cli v3.0.25+incompatible
 	github.com/aulanov/go.dbus v0.0.0-20150729231527-25c3068a42a0 // indirect
 	github.com/avast/retry-go v2.6.0+incompatible
 	github.com/aws/aws-sdk-go v1.35.24

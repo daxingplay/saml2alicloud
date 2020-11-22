@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pkg/errors"
@@ -21,12 +22,12 @@ type AWSAccount struct {
 func ParseAWSAccounts(audience string, samlAssertion string) ([]*AWSAccount, error) {
 	res, err := http.PostForm(audience, url.Values{"SAMLResponse": {samlAssertion}})
 	if err != nil {
-		return nil, errors.Wrap(err, "error retrieving AWS login form")
+		return nil, errors.Wrap(err, "error retrieving AlibabaCloud login form")
 	}
 
 	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "error retrieving AWS login body")
+		return nil, errors.Wrap(err, "error retrieving AlibabaCloud login body")
 	}
 
 	return ExtractAWSAccounts(data)
@@ -41,13 +42,19 @@ func ExtractAWSAccounts(data []byte) ([]*AWSAccount, error) {
 		return nil, errors.Wrap(err, "failed to build document from response")
 	}
 
-	doc.Find("fieldset > div.saml-account").Each(func(i int, s *goquery.Selection) {
+	doc.Find("#samlRoleForm > div.form-group > div.col-sm-4 > label").Each(func(i int, s *goquery.Selection) {
 		account := new(AWSAccount)
-		account.Name = s.Find("div.saml-account-name").Text()
-		s.Find("label").Each(func(i int, s *goquery.Selection) {
+		name := s.Text()
+		parts := strings.Split(name, ":")
+		account.Name = strings.TrimSpace(parts[1])
+		s.Parent().Parent().Next().Find("input[name='roleAttribute']").Each(func(i int, s *goquery.Selection) {
 			role := new(AWSRole)
-			role.Name = s.Text()
-			role.RoleARN, _ = s.Attr("for")
+			label := s.Parent()
+			role.Name = strings.TrimSpace(label.Text())
+			value, _ := s.Attr("value")
+			parts = strings.Split(value, ",")
+			role.RoleARN = strings.TrimSpace(parts[0])
+			role.PrincipalARN = strings.TrimSpace(parts[1])
 			account.Roles = append(account.Roles, role)
 		})
 		accounts = append(accounts, account)

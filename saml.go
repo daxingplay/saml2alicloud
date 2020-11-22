@@ -87,16 +87,16 @@ func ExtractDestinationURL(data []byte) (string, error) {
 		return "", ErrMissingElement{Tag: responseTag}
 	}
 
-	destination := rootElement.SelectAttrValue("Destination","none")
+	destination := rootElement.SelectAttrValue("Destination", "none")
 	if destination == "none" {
-		// If Destination attribute is not found in Response (root) element, 
+		// If Destination attribute is not found in Response (root) element,
 		// get the Recipient attribute from the SubjectConfirmationData element.
 		subjectConfirmationDataElement := doc.FindElement(".//SubjectConfirmationData")
 		if subjectConfirmationDataElement == nil {
 			return "", ErrMissingElement{Tag: responseTag}
 		}
 
-		destination = subjectConfirmationDataElement.SelectAttrValue("Recipient","none")
+		destination = subjectConfirmationDataElement.SelectAttrValue("Recipient", "none")
 		if destination == "none" {
 			return "", ErrMissingElement{Tag: responseTag}
 		}
@@ -134,7 +134,7 @@ func ExtractAwsRoles(data []byte) ([]string, error) {
 
 	attributes := attributeStatement.FindElements(childPath(assertionElement.Space, attributeTag))
 	for _, attribute := range attributes {
-		if attribute.SelectAttrValue("Name", "") != "https://aws.amazon.com/SAML/Attributes/Role" {
+		if attribute.SelectAttrValue("Name", "") != "https://www.aliyun.com/SAML-Role/Attributes/Role" {
 			continue
 		}
 		atributeValues := attribute.FindElements(childPath(assertionElement.Space, attributeValueTag))
