@@ -5,10 +5,10 @@ import (
 	"log"
 	"sort"
 
-	"github.com/pkg/errors"
 	"github.com/daxingplay/saml2alicloud/v2/pkg/cfg"
 	"github.com/daxingplay/saml2alicloud/v2/pkg/creds"
 	"github.com/daxingplay/saml2alicloud/v2/pkg/prompter"
+	"github.com/pkg/errors"
 )
 
 // PromptForConfigurationDetails prompt the user to present their hostname, username and mfa
@@ -37,7 +37,7 @@ func PromptForConfigurationDetails(idpAccount *cfg.IDPAccount) error {
 		idpAccount.MFA = mfas[0]
 	}
 
-	idpAccount.Profile = prompter.String("AWS Profile", idpAccount.Profile)
+	idpAccount.Profile = prompter.String("AlibabaCloud CLI Profile", idpAccount.Profile)
 
 	idpAccount.URL = prompter.String("URL", idpAccount.URL)
 	idpAccount.Username = prompter.String("Username", idpAccount.Username)

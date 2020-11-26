@@ -1,18 +1,18 @@
-# saml2aws [![GitHub Actions status](https://github.com/daxingplay/saml2alicloud/workflows/Go/badge.svg?branch=master)](https://github.com/daxingplay/saml2alicloud/actions?query=workflow%3AGo) [![Build status - Windows](https://ci.appveyor.com/api/projects/status/ptpi18kci16o4i82/branch/master?svg=true)](https://ci.appveyor.com/project/davidobrien1985/saml2aws/branch/master)
+# saml2alicloud [![GitHub Actions status](https://github.com/daxingplay/saml2alicloud/workflows/Go/badge.svg?branch=master)](https://github.com/daxingplay/saml2alicloud/actions?query=workflow%3AGo) [![Build status - Windows](https://ci.appveyor.com/api/projects/status/ptpi18kci16o4i82/branch/master?svg=true)](https://ci.appveyor.com/project/davidobrien1985/saml2aws/branch/master)
 
-CLI tool which enables you to login and retrieve [AWS](https://aws.amazon.com/) temporary credentials using 
+CLI tool which enables you to login and retrieve [AlibabaCloud](https://www.aliyun.com/) temporary credentials using 
 with [ADFS](https://msdn.microsoft.com/en-us/library/bb897402.aspx) or [PingFederate](https://www.pingidentity.com/en/products/pingfederate.html) Identity Providers.
 
-This is based on python code from [
-How to Implement a General Solution for Federated API/CLI Access Using SAML 2.0](https://blogs.aws.amazon.com/security/post/TxU0AVUS9J00FP/How-to-Implement-a-General-Solution-for-Federated-API-CLI-Access-Using-SAML-2-0).
+This is based on [
+saml2aws](https://github.com/Versent/saml2aws). Great thanks to Versent's work.
 
 The process goes something like this:
 
 * Setup an account alias, either using the default or given a name
 * Prompt user for credentials
 * Log in to Identity Provider using form based authentication
-* Build a SAML assertion containing AWS roles
-* Exchange the role and SAML assertion with [AWS STS service](https://docs.aws.amazon.com/STS/latest/APIReference/Welcome.html) to get a temporary set of credentials
+* Build a SAML assertion containing AlibabaCloud RAM roles
+* Exchange the role and SAML assertion with [AlibabaCloud STS service](https://www.alibabacloud.com/help/doc-detail/109979.htm) to get a temporary set of credentials
 * Save these credentials to an aws profile named "saml"
 
 ## Table of Contents
@@ -26,7 +26,7 @@ The process goes something like this:
     - [Linux](#linux)
 - [Dependency Setup](#dependency-setup)
 - [Usage](#usage)
-    - [`saml2aws script`](#saml2aws-script)
+    - [`saml2alicloud script`](#saml2aws-script)
     - [Configuring IDP Accounts](#configuring-idp-accounts)
 - [Example](#example)
 - [Advanced Configuration](#advanced-configuration)
@@ -50,13 +50,13 @@ The process goes something like this:
   * [Akamai](pkg/provider/akamai/README.md)
   * OneLogin
   * NetIQ
-* AWS SAML Provider configured
+* AlibabaCloud SAML Provider configured
 
 ## Caveats
 
 Aside from Okta, most of the providers in this project are using screen scraping to log users into SAML, this isn't ideal and hopefully vendors make this easier in the future. In addition to this there are some things you need to know:
 
-1. AWS defaults to session tokens being issued with a duration of up to 3600 seconds (1 hour), this can now be configured as per [Enable Federated API Access to your AWS Resources for up to 12 hours Using IAM Roles](https://aws.amazon.com/blogs/security/enable-federated-api-access-to-your-aws-resources-for-up-to-12-hours-using-iam-roles/) and `--session-duration` flag.
+1. AlibabaCloud defaults to session tokens being issued with a duration of up to 3600 seconds (1 hour), this can now be configured as [Set the maximum session duration for a RAM role](https://www.alibabacloud.com/help/doc-detail/166256.htm).
 2. Every SAML provider is different, the login process, MFA support is pluggable and therefore some work may be needed to integrate with your identity server
 
 ## Install
