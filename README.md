@@ -1,3 +1,5 @@
+> This repo is no longer maintained. Refer to [saml2alibabacloud](https://github.com/aliyun/saml2alibabacloud) for future updates.
+
 # saml2alicloud [![GitHub Actions status](https://github.com/daxingplay/saml2alicloud/workflows/Go/badge.svg?branch=master)](https://github.com/daxingplay/saml2alicloud/actions?query=workflow%3AGo) [![Build status - Windows](https://ci.appveyor.com/api/projects/status/ptpi18kci16o4i82/branch/master?svg=true)](https://ci.appveyor.com/project/davidobrien1985/saml2aws/branch/master)
 
 CLI tool which enables you to login and retrieve [AlibabaCloud](https://www.aliyun.com/) temporary credentials using 
